@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour {
 
+    public enum colorType {
+        Grayscale,
+        Colors
+    }
+
+    public colorType colortype;
+
     [Range(2, 512)]
     public int resolution = 128;
 
@@ -23,14 +30,23 @@ public class WorldGenerator : MonoBehaviour {
 
     public NoiseMethodType type;
 
+    public TerrainType[] blocks;
+
     private Texture2D texture;
+
+    [System.Serializable]
+    public struct TerrainType {
+        public string name;
+        public float cutOffHeight;
+        public Color color;
+    }
 
     private void OnEnable() {
         if (texture == null) {
             texture = new Texture2D(resolution, resolution, TextureFormat.RGB24, true);
             texture.name = "Procedural Texture";
             texture.wrapMode = TextureWrapMode.Clamp;
-            texture.filterMode = FilterMode.Trilinear;
+            texture.filterMode = FilterMode.Point;
             texture.anisoLevel = 9;
             GetComponent<MeshRenderer>().material.mainTexture = texture;
             FillTexture();
@@ -65,9 +81,27 @@ public class WorldGenerator : MonoBehaviour {
                 if (type != NoiseMethodType.Value) {
                     sample = sample * 0.5f + 0.5f;
                 }
-                texture.SetPixel(x, y, Color.white * sample);
+                if (colortype == colorType.Colors) {
+                    texture.SetPixel(x, y, BlockColor(sample));
+                } else {
+                    texture.SetPixel(x, y, Color.white * sample);
+                }
+                
             }
         }
         texture.Apply();
     }
+
+    private Color BlockColor(float noiseSample) {
+        Color color = new Color();
+
+        for (int i = 0; i < blocks.Length; i++) {
+            if (noiseSample <= blocks[i].cutOffHeight) {
+                color = blocks[i].color;
+                break;
+            }
+        }
+        return color;
+    }
+
 }

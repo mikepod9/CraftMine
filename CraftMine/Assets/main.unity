@@ -204,16 +204,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f34994ac09d9c44ba7ee059de0ec5db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 0
-  width: 256
-  height: 256
-  maxDepth: 128
-  scale: 20
-  depth: 0
-  octaves: 4
-  persistance: 0.5
+  colortype: 0
+  resolution: 128
+  frequency: 10
+  octaves: 2
   lacunarity: 2
-  terrainRule: []
+  persistence: 0.5
+  dimensions: 3
+  type: 0
+  blocks:
+  - name: Water
+    cutOffHeight: 0.4
+    color: {r: 0.7019608, g: 0.8235295, b: 0.9058824, a: 0}
+  - name: Sand
+    cutOffHeight: 0.45
+    color: {r: 0.7952512, g: 0.9117647, b: 0.06704153, a: 0}
+  - name: Grass
+    cutOffHeight: 0.6
+    color: {r: 0.07947663, g: 0.7205882, b: 0.21654183, a: 0}
+  - name: Rock
+    cutOffHeight: 1
+    color: {r: 0.30882353, g: 0.08628894, b: 0.08628894, a: 0}
 --- !u!1 &243563323
 GameObject:
   m_ObjectHideFlags: 0
