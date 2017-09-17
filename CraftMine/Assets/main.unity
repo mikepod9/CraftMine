@@ -204,27 +204,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f34994ac09d9c44ba7ee059de0ec5db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colortype: 0
-  resolution: 128
+  colortype: 1
+  length: 64
+  depth: 128
+  z: 0
+  waterLevel: 64
   frequency: 10
   octaves: 2
   lacunarity: 2
   persistence: 0.5
-  dimensions: 3
-  type: 0
-  blocks:
-  - name: Water
-    cutOffHeight: 0.4
-    color: {r: 0.7019608, g: 0.8235295, b: 0.9058824, a: 0}
-  - name: Sand
-    cutOffHeight: 0.45
-    color: {r: 0.7952512, g: 0.9117647, b: 0.06704153, a: 0}
-  - name: Grass
-    cutOffHeight: 0.6
-    color: {r: 0.07947663, g: 0.7205882, b: 0.21654183, a: 0}
-  - name: Rock
-    cutOffHeight: 1
-    color: {r: 0.30882353, g: 0.08628894, b: 0.08628894, a: 0}
+  dimensions: 2
+  type: 1
 --- !u!1 &243563323
 GameObject:
   m_ObjectHideFlags: 0
@@ -284,8 +274,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 0.59
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
