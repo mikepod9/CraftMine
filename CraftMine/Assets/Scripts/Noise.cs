@@ -112,8 +112,8 @@ public static class Noise {
         return t * t * t * (t * (t * 6f - 15f) + 10f);
     }
 
-    private static float Dot(Vector2 g, float x, float y) {
-        return g.x * x + g.y * y;
+    private static float Dot(Vector2 g, float x, float z) {
+        return g.x * x + g.y * z;
     }
 
     private static float Dot(Vector3 g, float x, float y, float z) {
@@ -150,27 +150,27 @@ public static class Noise {
     public static float Value2D(Vector3 point, float frequency) {
         point *= frequency;
         int ix0 = Mathf.FloorToInt(point.x);
-        int iy0 = Mathf.FloorToInt(point.y);
+        int iz0 = Mathf.FloorToInt(point.z);
         float tx = point.x - ix0;
-        float ty = point.y - iy0;
+        float tz = point.z - iz0;
         ix0 &= hashMask;
-        iy0 &= hashMask;
+        iz0 &= hashMask;
         int ix1 = ix0 + 1;
-        int iy1 = iy0 + 1;
+        int iz1 = iz0 + 1;
 
         int h0 = hash[ix0];
         int h1 = hash[ix1];
-        int h00 = hash[h0 + iy0];
-        int h10 = hash[h1 + iy0];
-        int h01 = hash[h0 + iy1];
-        int h11 = hash[h1 + iy1];
+        int h00 = hash[h0 + iz0];
+        int h10 = hash[h1 + iz0];
+        int h01 = hash[h0 + iz1];
+        int h11 = hash[h1 + iz1];
 
         tx = Smooth(tx);
-        ty = Smooth(ty);
+        tz = Smooth(tz);
         return Mathf.Lerp(
             Mathf.Lerp(h00, h10, tx),
             Mathf.Lerp(h01, h11, tx),
-            ty) * (1f / hashMask);
+            tz) * (1f / hashMask);
     }
 
     public static float Value3D(Vector3 point, float frequency) {
@@ -234,34 +234,34 @@ public static class Noise {
     public static float Perlin2D(Vector3 point, float frequency) {
         point *= frequency;
         int ix0 = Mathf.FloorToInt(point.x);
-        int iy0 = Mathf.FloorToInt(point.y);
+        int iz0 = Mathf.FloorToInt(point.z);
         float tx0 = point.x - ix0;
-        float ty0 = point.y - iy0;
+        float tz0 = point.z - iz0;
         float tx1 = tx0 - 1f;
-        float ty1 = ty0 - 1f;
+        float tz1 = tz0 - 1f;
         ix0 &= hashMask;
-        iy0 &= hashMask;
+        iz0 &= hashMask;
         int ix1 = ix0 + 1;
-        int iy1 = iy0 + 1;
+        int iz1 = iz0 + 1;
 
         int h0 = hash[ix0];
         int h1 = hash[ix1];
-        Vector2 g00 = gradients2D[hash[h0 + iy0] & gradientsMask2D];
-        Vector2 g10 = gradients2D[hash[h1 + iy0] & gradientsMask2D];
-        Vector2 g01 = gradients2D[hash[h0 + iy1] & gradientsMask2D];
-        Vector2 g11 = gradients2D[hash[h1 + iy1] & gradientsMask2D];
+        Vector2 g00 = gradients2D[hash[h0 + iz0] & gradientsMask2D];
+        Vector2 g10 = gradients2D[hash[h1 + iz0] & gradientsMask2D];
+        Vector2 g01 = gradients2D[hash[h0 + iz1] & gradientsMask2D];
+        Vector2 g11 = gradients2D[hash[h1 + iz1] & gradientsMask2D];
 
-        float v00 = Dot(g00, tx0, ty0);
-        float v10 = Dot(g10, tx1, ty0);
-        float v01 = Dot(g01, tx0, ty1);
-        float v11 = Dot(g11, tx1, ty1);
+        float v00 = Dot(g00, tx0, tz0);
+        float v10 = Dot(g10, tx1, tz0);
+        float v01 = Dot(g01, tx0, tz1);
+        float v11 = Dot(g11, tx1, tz1);
 
         float tx = Smooth(tx0);
-        float ty = Smooth(ty0);
+        float tz = Smooth(tz0);
         return Mathf.Lerp(
             Mathf.Lerp(v00, v10, tx),
             Mathf.Lerp(v01, v11, tx),
-            ty) * sqr2;
+            tz) * sqr2;
     }
 
     public static float Perlin3D(Vector3 point, float frequency) {
