@@ -19,7 +19,7 @@ public class TextureCreatorINspector : Editor {
 
     private void RefreshNoise() {
         if (Application.isPlaying) {
-            noise.FillTexture();
+            //noise.FillTexture();
         }
     }
 

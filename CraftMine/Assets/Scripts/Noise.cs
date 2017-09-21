@@ -91,6 +91,35 @@ public static class Noise {
         new Vector3( 0f,-1f,-1f)
     };
 
+    public static float[,] GenerateNoiseMap(int width, int length, int depth, Transform transform, float frequency, int octaves, float lacunarity, float persistence)
+    {
+        float[,] noiseMap = new float[width, length];
+
+        NoiseMethod method = Noise.noiseMethods[1][1];
+
+        Vector3 point00 = transform.TransformPoint(new Vector3(-0.5f, 0, -0.5f));
+        Vector3 point10 = transform.TransformPoint(new Vector3(0.5f, 0, -0.5f));
+        Vector3 point01 = transform.TransformPoint(new Vector3(-0.5f, 0, 0.5f));
+        Vector3 point11 = transform.TransformPoint(new Vector3(0.5f, 0, 0.5f));
+
+        float stepSize = 1f / length;
+        for (int x = 0; x < length; x++)
+        {
+            Vector3 point0 = Vector3.Lerp(point00, point01, (x + 0.5f) * stepSize);
+            Vector3 point1 = Vector3.Lerp(point10, point11, (x + 0.5f) * stepSize);
+            for (int z = 0; z < length; z++)
+            {
+                Vector3 point = Vector3.Lerp(point0, point1, (z + 0.5f) * stepSize);
+                float sample = Noise.Sum(method, point, frequency, octaves, lacunarity, persistence);
+                sample = sample * 0.5f + 0.5f;
+                sample *= depth;
+                noiseMap[x, z] = sample;
+            }
+        }
+        return noiseMap;
+    }
+
+
     public static NoiseMethod[] valueMethods = {
         Value1D,
         Value2D,
