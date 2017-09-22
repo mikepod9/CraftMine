@@ -56,7 +56,8 @@ public class WorldGenerator : MonoBehaviour {
     private void Start() {
         //SpawnBlock();
         //noiseMap = Noise.GenerateNoiseMap(length, length, depth, this.transform, frequency, octaves, lacunarity, persistence);
-        Chunk chunk = new Chunk(1, 1);
+        Chunk chunk = new Chunk(0, 0);
+        Chunk chunk2 = new Chunk(0, 64);
         //for (int z = 0; z < length; z++)
         //{
         //    for (int x = 0; x < length; x++)

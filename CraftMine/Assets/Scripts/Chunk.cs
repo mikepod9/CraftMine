@@ -24,12 +24,11 @@ public class Chunk : MonoBehaviour{
         chunk.AddComponent<Transform>();
         chunk.transform.position = new Vector3(posX, 0, posZ);
         this.noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunk.transform, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
-        Start();
+        GenerateChunk();
     }
 
     // Use this for initialization
     void Start () {
-        GenerateChunk();
     }
 	
 	// Update is called once per frame
@@ -40,8 +39,8 @@ public class Chunk : MonoBehaviour{
     void GenerateChunk(){
         for (int z = 0; z < chunkWidth; z++){
             for (int x = 0; x < chunkLength; x++){
-                for (int y = 50; y < chunkDepth; y++){
-                    PlaceBlock(noiseMap[z, x], x, y, z);
+                for (int y = 64; y < chunkDepth; y++){
+                    PlaceBlock(noiseMap[z, x], x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
                 }
             }
         }
@@ -58,19 +57,22 @@ public class Chunk : MonoBehaviour{
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.Bedrock;
             cube.transform.position = new Vector3(x, y, z);
+            cube.transform.parent = chunk.transform;
         }
         else if (y <= stoneLayer)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.Stone;
             cube.transform.position = new Vector3(x, y, z);
+            cube.transform.parent = chunk.transform;
         }
         else if (y <= dirtLayer)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.Land;
             cube.transform.position = new Vector3(x, y, z);
+            cube.transform.parent = chunk.transform;
         }
-        else return;
+        else return;        
     }
 }
