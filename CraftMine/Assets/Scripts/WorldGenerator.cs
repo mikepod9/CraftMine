@@ -39,63 +39,37 @@ public class WorldGenerator : MonoBehaviour {
 
     public NoiseMethodType type;
 
-    public Material Air;
-    public Material Land;
-    public Material Stone;
-    public Material Bedrock;
+    public NamedMaterial[] materials;
 
-    private Texture2D texture;
+    public Dictionary<string, Material> materialDictionary = new Dictionary<string, Material>();
 
-    private float[,] noiseMap;
-
-    private void Awake(){
+    [System.Serializable]
+    public struct NamedMaterial {
+        public string name;
+        public Material material;
+    }
+    
+    private void Awake() {
         if (instance == null)
             instance = this;
+        PopulateDictionary();
     }
 
     private void Start() {
-        //SpawnBlock();
-        //noiseMap = Noise.GenerateNoiseMap(length, length, depth, this.transform, frequency, octaves, lacunarity, persistence);
         Chunk chunk = new Chunk(0, 0);
-        Chunk chunk2 = new Chunk(0, 64);
-        //for (int z = 0; z < length; z++)
-        //{
-        //    for (int x = 0; x < length; x++)
-        //    {
-        //        for (int y = 50; y < depth; y++)
-        //        {
-        //            PlaceBlock(noiseMap[z, x], x, y, z);
-        //        }
-        //    }
-        //}
     }
 
     private void OnEnable() {
-        
+
     }
 
     private void Update() {
-       
+
     }
 
-    private void PlaceBlock(float noiseSample, int x, int y, int z) {
-
-        int dirtLayer = Mathf.FloorToInt(noiseSample);
-        int dirtThickness = dirtLayer / 32 - 6;
-        int stoneLayer = dirtLayer + dirtThickness;
-
-        if (y == 0) {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = Bedrock;
-            cube.transform.position = new Vector3(x, y, z);
-        } else if (y <= stoneLayer) {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = Stone;
-            cube.transform.position = new Vector3(x, y, z);
-        } else if (y <= dirtLayer) {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = Land;
-            cube.transform.position = new Vector3(x, y, z);
-        } else return;
+    public void PopulateDictionary() {
+        for (int i = 0; i < materials.Length; i++) {
+            materialDictionary.Add(materials[i].name, materials[i].material);
+        }
     }
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -238,6 +238,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colortype: 0
+  length: 64
+  depth: 128
   z: 0
   waterLevel: 64
   frequency: 2
@@ -246,6 +248,15 @@ MonoBehaviour:
   persistence: 0.5
   dimensions: 2
   type: 1
+  materials:
+  - name: Air
+    material: {fileID: 2100000, guid: f2689030d065b4041ad90519ce7a85e7, type: 2}
+  - name: Land
+    material: {fileID: 2100000, guid: 925b11cd48432444c8899112768becf0, type: 2}
+  - name: Stone
+    material: {fileID: 2100000, guid: 9cbd718eb7dbf6645b1782f75ba7a99f, type: 2}
+  - name: Bedrock
+    material: {fileID: 2100000, guid: f330c52009c24f5489eb665bfdcafd30, type: 2}
   Air: {fileID: 2100000, guid: f2689030d065b4041ad90519ce7a85e7, type: 2}
   Land: {fileID: 2100000, guid: 925b11cd48432444c8899112768becf0, type: 2}
   Stone: {fileID: 2100000, guid: 9cbd718eb7dbf6645b1782f75ba7a99f, type: 2}
