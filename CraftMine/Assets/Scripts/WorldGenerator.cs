@@ -6,22 +6,15 @@ public class WorldGenerator : MonoBehaviour {
 
     private static WorldGenerator instance = null;
 
-    public enum colorType {
-        Grayscale,
-        Colors
-    }
-
-    public colorType colortype;
-
     [Range(2, 128)]
     public int length = 64;
 
     public int depth = 128;
 
-    [Range(0, 128)]
-    public int z = 0;
-
     public int waterLevel = 64;
+
+    [Range(0, 2)]
+    public int numChunks = 0;
 
     public float frequency = 10f;
 
@@ -33,11 +26,6 @@ public class WorldGenerator : MonoBehaviour {
 
     [Range(0f, 1f)]
     public float persistence = 0.5f;
-
-    [Range(1, 3)]
-    public int dimensions = 2;
-
-    public NoiseMethodType type;
 
     public NamedMaterial[] materials;
 
@@ -56,11 +44,10 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void Start() {
-       new Chunk(0, 0);
+        CreateChunks(0);
     }
 
     private void OnEnable() {
-
     }
 
     private void Update() {
@@ -74,6 +61,16 @@ public class WorldGenerator : MonoBehaviour {
     public void PopulateDictionary() {
         for (int i = 0; i < materials.Length; i++) {
             materialDictionary.Add(materials[i].name, materials[i].material);
+        }
+    }
+
+    public void CreateChunks(int numChunks) {
+        int i = 0;
+        for (int x = -numChunks; x <= numChunks; x++) {
+            for (int z = -numChunks; z <= numChunks; z++) {
+                new Chunk(x, z, i);
+                i++;
+            }
         }
     }
 }

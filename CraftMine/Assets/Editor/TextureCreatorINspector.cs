@@ -19,7 +19,9 @@ public class TextureCreatorINspector : Editor {
 
     private void RefreshNoise() {
         if (Application.isPlaying) {
-            //noise.FillTexture();
+            foreach(GameObject chunk in GameObject.FindGameObjectsWithTag("Chunk"))
+                GameObject.Destroy(chunk);
+            noise.CreateChunks(noise.numChunks);
         }
     }
 
