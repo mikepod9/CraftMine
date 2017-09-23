@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour {
 
-    public static WorldGenerator instance = null;
+    private static WorldGenerator instance = null;
 
     public enum colorType {
         Grayscale,
@@ -65,6 +65,10 @@ public class WorldGenerator : MonoBehaviour {
 
     private void Update() {
 
+    }
+
+    public static WorldGenerator getInstance() {
+        return instance;
     }
 
     public void PopulateDictionary() {

@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Chunk{
 
-    private WorldGenerator WG = WorldGenerator.instance;
+    private WorldGenerator WG = WorldGenerator.getInstance();
 
     private int chunkWidth;
     private int chunkLength;
     private int chunkDepth;
 
-    private Block[,,] Blocks;
+    private Block[,,] blocks;
     private float[,] noiseMap;
 
     private GameObject chunk;
@@ -20,17 +20,31 @@ public class Chunk{
         chunkWidth = WG.length;
         chunkLength = WG.length;
         chunkDepth = WG.depth;
+        blocks = new Block[chunkWidth, chunkDepth, chunkLength];
         chunk = new GameObject();
         chunk.transform.position = new Vector3(posX, 0, posZ);
         this.noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunk.transform, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
         GenerateChunk();
+        RenderChunk();
     }
 
     void GenerateChunk(){
         for (int z = 0; z < chunkWidth; z++){
             for (int x = 0; x < chunkLength; x++){
-                for (int y = 45; y < chunkDepth; y++){
-                    PlaceBlock(noiseMap[z, x], x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
+                for (int y = 0; y < chunkDepth; y++){
+                    PlaceBlock(noiseMap[z, x], x, y, z);
+                }
+            }
+        }
+    }
+
+    void RenderChunk() {
+        for (int z = 0; z < chunkWidth; z++) {
+            for (int x = 0; x < chunkLength; x++) {
+                for (int y = 0; y < chunkDepth; y++) {
+                    if (!blocks[x,y,z].isTransparent())
+                        blocks[x, y, z].Draw(CheckNeighbors(x, y, z)).transform.position = 
+                         new Vector3(x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
                 }
             }
         }
@@ -42,27 +56,53 @@ public class Chunk{
         int dirtThickness = dirtLayer / 32 - 6;
         int stoneLayer = dirtLayer + dirtThickness;
 
+        if (y == 0) {
+            Block block = new Block("Bedrock");
+            blocks[x, y, z] = block;
+        } else if (y <= stoneLayer) {
+            Block block = new Block("Stone");
+            blocks[x, y, z] = block;
+        } else if (y <= dirtLayer) {
+            Block block = new Block("Land");
+            blocks[x, y, z] = block;
+        } else {
+            Block block = new Block("Air");
+            blocks[x, y, z] = block;
+        };        
+    }
+
+    private int [] CheckNeighbors(int x, int y, int z) {
+        List<int> faces = new List<int>();
+
+        if (x == chunkWidth - 1)
+            faces.Add((int)Block.Faces.right);
+        if (y == chunkDepth - 1)
+            faces.Add((int)Block.Faces.top);
+        if (z == chunkLength - 1)
+            faces.Add((int)Block.Faces.front);
+
+        if (x == 0)
+            faces.Add((int)Block.Faces.left);
         if (y == 0)
-        {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.materialDictionary["Bedrock"];
-            cube.transform.position = new Vector3(x, y, z);
-            cube.transform.parent = chunk.transform;
-        }
-        else if (y <= stoneLayer)
-        {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.materialDictionary["Stone"];
-            cube.transform.position = new Vector3(x, y, z);
-            cube.transform.parent = chunk.transform;
-        }
-        else if (y <= dirtLayer)
-        {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.GetComponent<MeshRenderer>().material = WorldGenerator.instance.materialDictionary["Land"];
-            cube.transform.position = new Vector3(x, y, z);
-            cube.transform.parent = chunk.transform;
-        }
-        else return;        
+            faces.Add((int)Block.Faces.bottom);
+        if (z == 0)
+            faces.Add((int)Block.Faces.back);
+
+        if (y + 1 < chunkDepth && blocks[x, y + 1, z].isTransparent())
+            faces.Add((int)Block.Faces.top);
+        if (y - 1 >= 0 && blocks[x, y - 1, z].isTransparent())
+            faces.Add((int)Block.Faces.bottom);
+
+        if (x + 1 < chunkLength && blocks[x + 1, y, z].isTransparent())
+            faces.Add((int)Block.Faces.right);
+        if (x - 1 >= 0 && blocks[x - 1, y, z].isTransparent())
+            faces.Add((int)Block.Faces.left);
+
+        if (z + 1 < chunkWidth && blocks[x, y, z + 1].isTransparent())
+            faces.Add((int)Block.Faces.front);
+        if (z - 1 >= 0 && blocks[x, y, z - 1].isTransparent())
+            faces.Add((int)Block.Faces.back);
+
+        return faces.ToArray();
     }
 }

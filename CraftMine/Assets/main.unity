@@ -257,10 +257,6 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 9cbd718eb7dbf6645b1782f75ba7a99f, type: 2}
   - name: Bedrock
     material: {fileID: 2100000, guid: f330c52009c24f5489eb665bfdcafd30, type: 2}
-  Air: {fileID: 2100000, guid: f2689030d065b4041ad90519ce7a85e7, type: 2}
-  Land: {fileID: 2100000, guid: 925b11cd48432444c8899112768becf0, type: 2}
-  Stone: {fileID: 2100000, guid: 9cbd718eb7dbf6645b1782f75ba7a99f, type: 2}
-  Bedrock: {fileID: 2100000, guid: f330c52009c24f5489eb665bfdcafd30, type: 2}
 --- !u!1 &2078755465
 GameObject:
   m_ObjectHideFlags: 0
