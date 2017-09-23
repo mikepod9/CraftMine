@@ -12,9 +12,9 @@ public class MeshData {
             new Vector3(1, 1, 1),
             new Vector3(0, 1, 1)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 2, 1, 0, 3, 2
-        });
+        }));
 
     public static MeshData bottom = new MeshData(
 
@@ -24,9 +24,9 @@ public class MeshData {
             new Vector3(1, 0, 1),
             new Vector3(0, 0, 1)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 1, 2, 0, 2, 3
-        });
+        }));
 
     public static MeshData right = new MeshData(
 
@@ -36,9 +36,9 @@ public class MeshData {
             new Vector3(1, 1, 1),
             new Vector3(1, 1, 0)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 2, 1, 0, 3, 2
-        });
+        }));
 
     public static MeshData left = new MeshData(
 
@@ -48,9 +48,9 @@ public class MeshData {
             new Vector3(0, 1, 1),
             new Vector3(0, 1, 0)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 1, 2, 0, 2, 3
-        });
+        }));
 
     public static MeshData front = new MeshData(
 
@@ -60,9 +60,9 @@ public class MeshData {
             new Vector3(1, 1, 1),
             new Vector3(0, 1, 1)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 1, 2, 0, 2, 3
-        });
+        }));
 
     public static MeshData back = new MeshData(
 
@@ -72,26 +72,26 @@ public class MeshData {
             new Vector3(1, 1, 0),
             new Vector3(0, 1, 0)
         }),
-        new int[] {
+        new List<int>(new int[] {
             0, 2, 1, 0, 3, 2
-        });
+        }));
 
 
-    public static MeshData[] faces = new MeshData[] { top , bottom, right, left, front, back };
+    public readonly static MeshData[] faces = new MeshData[] { top , bottom, right, left, front, back };
 
-    List<Vector3> vertices;
-    int[] triangles;
+    private List<Vector3> vertices;
+    private List<int> triangles;
 
-    public MeshData(List<Vector3> vertices, int[] triangles) {
-        this.vertices = vertices;
-        this.triangles = triangles;
+    private MeshData(List<Vector3> vertices, List<int> triangles) {
+        this.vertices = new List<Vector3>( vertices);
+        this.triangles = new List<int>(triangles);
     }
 
     public List<Vector3> GetVertices() {
-        return vertices;
+        return new List<Vector3>(vertices);
     }
 
-    public int[] GetTriangles() {
-        return triangles;
+    public List<int> GetTriangles() {
+        return new List<int>(triangles);
     }
 }

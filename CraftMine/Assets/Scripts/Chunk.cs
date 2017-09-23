@@ -21,7 +21,7 @@ public class Chunk{
         chunkLength = WG.length;
         chunkDepth = WG.depth;
         blocks = new Block[chunkWidth, chunkDepth, chunkLength];
-        chunk = new GameObject();
+        chunk = new GameObject("Chunk");
         chunk.transform.position = new Vector3(posX, 0, posZ);
         this.noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunk.transform, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
         chunk.transform.position = new Vector3(posX * chunkLength, 0, posZ * chunkWidth);
@@ -43,10 +43,13 @@ public class Chunk{
         for (int z = 0; z < chunkWidth; z++) {
             for (int x = 0; x < chunkLength; x++) {
                 for (int y = 0; y < chunkDepth; y++) {
-                    if (!blocks[x, y, z].isTransparent()){
-                        GameObject block = blocks[x, y, z].Draw(CheckNeighbors(x, y, z));
-                        block.transform.position = new Vector3(x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
-                        block.transform.parent = chunk.transform;
+                    if (!blocks[x, y, z].isTransparent()) {
+                        int[] faces = CheckNeighbors(x, y, z);
+                        if (faces.Length > 0) { 
+                            GameObject block = blocks[x, y, z].Draw(faces);
+                            block.transform.position = new Vector3(x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
+                            block.transform.parent = chunk.transform;
+                        }
                     }
                 }
             }
