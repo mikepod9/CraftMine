@@ -238,8 +238,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colortype: 0
-  length: 64
-  depth: 128
+  length: 32
+  depth: 32
   z: 0
   waterLevel: 64
   frequency: 2

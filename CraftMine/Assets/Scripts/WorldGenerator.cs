@@ -56,7 +56,7 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     private void Start() {
-        Chunk chunk = new Chunk(0, 0);
+       new Chunk(0, 0);
     }
 
     private void OnEnable() {
