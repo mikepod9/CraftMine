@@ -6,10 +6,10 @@ using UnityEditor;
 [CustomEditor (typeof(WorldGenerator))]
 public class TextureCreatorINspector : Editor {
 
-    private WorldGenerator noise;
+    private WorldGenerator worldGenerator;
 
     private void OnEnable() {
-        noise = target as WorldGenerator;
+        worldGenerator = target as WorldGenerator;
         Undo.undoRedoPerformed += RefreshNoise;
     }
 
@@ -21,7 +21,7 @@ public class TextureCreatorINspector : Editor {
         if (Application.isPlaying) {
             foreach(GameObject chunk in GameObject.FindGameObjectsWithTag("Chunk"))
                 GameObject.Destroy(chunk);
-            noise.CreateChunks(noise.numChunks);
+            worldGenerator.Start();
         }
     }
 

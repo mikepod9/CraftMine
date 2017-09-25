@@ -10,10 +10,10 @@ public class Chunk{
     private int chunkLength;
     private int chunkDepth;
 
-    private Block[,,] blocks;
+    public Block[,,] blocks;
     private float[,] noiseMap;
 
-    private GameObject chunk;
+    public GameObject chunk;
     private int blockCount = 0;
 
     private Dictionary<string, List<Mesh>> meshesPerBlockType = new Dictionary<string, List<Mesh>>();
@@ -30,7 +30,6 @@ public class Chunk{
         this.noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunk.transform, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
         chunk.transform.position = new Vector3(posX * chunkLength, 0, posZ * chunkWidth);
         GenerateChunk();
-        RenderChunk();
     }
 
     void GenerateChunk(){
@@ -43,7 +42,7 @@ public class Chunk{
         }
     }
 
-    void RenderChunk() { 
+    public void RenderChunk() { 
         for (int z = 0; z < chunkWidth; z++) {
             for (int x = 0; x < chunkLength; x++) {
                 for (int y = 0; y < chunkDepth; y++) {
@@ -97,18 +96,38 @@ public class Chunk{
         List<int> faces = new List<int>();
 
         if (x == chunkLength - 1)
-            faces.Add((int)Block.Faces.right);
+            if (getNeighbourChunkBlocks(1, 0) != null) {
+                if (getNeighbourChunkBlocks(1, 0)[0, y, z].isTransparent())
+                    faces.Add((int)Block.Faces.right);
+            } else {
+                faces.Add((int)Block.Faces.right);
+            }
         if (y == chunkDepth - 1)
             faces.Add((int)Block.Faces.top);
         if (z == chunkWidth - 1)
-            faces.Add((int)Block.Faces.front);
+            if (getNeighbourChunkBlocks(0, 1) != null) {
+                if (getNeighbourChunkBlocks(0, 1)[x, y, 0].isTransparent())
+                    faces.Add((int)Block.Faces.front);
+            } else {
+                faces.Add((int)Block.Faces.front);
+            }
 
         if (x == 0)
-            faces.Add((int)Block.Faces.left);
+            if (getNeighbourChunkBlocks(-1, 0) != null) {
+                if (getNeighbourChunkBlocks(-1, 0)[WG.length - 1, y, z].isTransparent())
+                    faces.Add((int)Block.Faces.left);
+            } else {
+                faces.Add((int)Block.Faces.left);
+            }
         if (y == 0)
             faces.Add((int)Block.Faces.bottom);
         if (z == 0)
-            faces.Add((int)Block.Faces.back);
+            if (getNeighbourChunkBlocks(0, -1) != null) {
+                if (getNeighbourChunkBlocks(0, -1)[x, y, WG.length - 1].isTransparent())
+                    faces.Add((int)Block.Faces.back);
+            } else {
+                faces.Add((int)Block.Faces.back);
+            }
 
         if (y + 1 < chunkDepth && blocks[x, y + 1, z].isTransparent())
             faces.Add((int)Block.Faces.top);
@@ -128,19 +147,33 @@ public class Chunk{
         return faces.ToArray();
     }
 
+    private Block[,,] getNeighbourChunkBlocks(int x, int z) {
+        int chunkGridCoordX = (int)chunk.transform.position.x / WG.length;
+        int chunkGridCoordZ = (int)chunk.transform.position.z / WG.length;
+
+        chunkGridCoordX = chunkGridCoordX + WG.numChunks + x;
+        chunkGridCoordZ = chunkGridCoordZ + WG.numChunks + z;
+
+        try {
+            return WG.chunks[chunkGridCoordX, chunkGridCoordZ].blocks;
+        }catch(System.Exception e) {
+            return null;
+        }
+    }
+
     public void CombineMeshesByType() {
         foreach(string blockType in meshesPerBlockType.Keys) {
             if (blockType.Equals("Air"))
                 continue;
-
-            GameObject meshType = new GameObject(blockType + " blocks");
 
             List<Mesh> meshes = meshesPerBlockType[blockType];
             List<Vector3> finalMeshVercies = new List<Vector3>();
             List<int> finalMeshTriangles = new List<int>();
 
             //Debug.Log(meshes[0].vertices.Length);
-
+            if (meshes.Count == 0)
+                continue;
+            GameObject meshType = new GameObject(blockType + " blocks");
             finalMeshVercies.AddRange(meshes[0].vertices);
             finalMeshTriangles.AddRange(meshes[0].triangles);
             int offset = meshes[0].vertices.Length;

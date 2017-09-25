@@ -13,7 +13,7 @@ public class WorldGenerator : MonoBehaviour {
 
     public int waterLevel = 64;
 
-    [Range(0, 2)]
+    [Range(0, 10)]
     public int numChunks = 0;
 
     public float frequency = 10f;
@@ -31,20 +31,23 @@ public class WorldGenerator : MonoBehaviour {
 
     public Dictionary<string, Material> materialDictionary = new Dictionary<string, Material>();
 
+    public Chunk[,] chunks;
+
     [System.Serializable]
     public struct NamedMaterial {
         public string name;
         public Material material;
     }
-    
+
     private void Awake() {
         if (instance == null)
             instance = this;
         PopulateDictionary();
     }
 
-    private void Start() {
-        CreateChunks(0);
+    public void Start() {
+        CreateChunks(numChunks);
+        RenderChunks();
     }
 
     private void OnEnable() {
@@ -65,11 +68,20 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void CreateChunks(int numChunks) {
+        chunks = new Chunk[1 + 2 * numChunks, 1 + 2 * numChunks];
         int i = 0;
         for (int x = -numChunks; x <= numChunks; x++) {
             for (int z = -numChunks; z <= numChunks; z++) {
-                new Chunk(x, z, i);
+                chunks[x + numChunks, z + numChunks] = new Chunk(x, z, i);
                 i++;
+            }
+        }
+    }
+
+    public void RenderChunks() {
+        for (int x = 0; x < chunks.GetLength(1); x++) {
+            for (int z = 0; z < chunks.GetLength(0); z++) {
+                chunks[x, z].RenderChunk();
             }
         }
     }
