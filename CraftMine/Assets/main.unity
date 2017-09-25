@@ -151,7 +151,7 @@ MonoBehaviour:
   length: 32
   depth: 128
   waterLevel: 64
-  numChunks: 0
+  numChunks: 10
   frequency: 0.5
   octaves: 8
   lacunarity: 1.43
@@ -222,7 +222,7 @@ Camera:
     width: 10
     height: 10
   near clip plane: 30
-  far clip plane: 344.7
+  far clip plane: 1000
   field of view: 62
   orthographic: 0
   orthographic size: 72.43073

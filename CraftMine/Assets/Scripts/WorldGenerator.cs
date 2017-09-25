@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour {
@@ -33,6 +34,8 @@ public class WorldGenerator : MonoBehaviour {
 
     public Chunk[,] chunks;
 
+    private Queue<Chunk> chunksToRenderQueue = new Queue<Chunk>();
+
     [System.Serializable]
     public struct NamedMaterial {
         public string name;
@@ -47,14 +50,19 @@ public class WorldGenerator : MonoBehaviour {
 
     public void Start() {
         CreateChunks(numChunks);
-        RenderChunks();
+        ThreadStart threadStart = delegate {
+            RenderChunks();
+        };
+        new Thread(threadStart).Start();
     }
 
     private void OnEnable() {
     }
 
     private void Update() {
-
+        if (chunksToRenderQueue.Count > 0) {
+            chunksToRenderQueue.Dequeue().RenderChunk();
+        }
     }
 
     public static WorldGenerator getInstance() {
@@ -81,7 +89,9 @@ public class WorldGenerator : MonoBehaviour {
     public void RenderChunks() {
         for (int x = 0; x < chunks.GetLength(1); x++) {
             for (int z = 0; z < chunks.GetLength(0); z++) {
-                chunks[x, z].RenderChunk();
+                lock (chunksToRenderQueue){
+                    chunksToRenderQueue.Enqueue(chunks[x, z]);
+                }
             }
         }
     }

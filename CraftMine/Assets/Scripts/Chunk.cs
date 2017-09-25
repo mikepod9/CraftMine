@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -61,7 +62,6 @@ public class Chunk{
                 }
             }
         }
-        Debug.Log(blockCount + " in " + chunk.name);
         CombineMeshesByType();
     }
 
@@ -169,8 +169,7 @@ public class Chunk{
             List<Mesh> meshes = meshesPerBlockType[blockType];
             List<Vector3> finalMeshVercies = new List<Vector3>();
             List<int> finalMeshTriangles = new List<int>();
-
-            //Debug.Log(meshes[0].vertices.Length);
+            
             if (meshes.Count == 0)
                 continue;
             GameObject meshType = new GameObject(blockType + " blocks");
