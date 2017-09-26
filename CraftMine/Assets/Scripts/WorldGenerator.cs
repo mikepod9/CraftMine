@@ -61,7 +61,7 @@ public class WorldGenerator : MonoBehaviour {
     private void OnEnable() {
     }
 
-    private void Update() {
+    private void FixedUpdate() {
         if (chunksToAddtoGridQueue.Count > 0) {
             Chunk chunk = chunksToAddtoGridQueue.Dequeue();
             chunk.chunk = new GameObject("Chunk" + chunk.chunkID);
