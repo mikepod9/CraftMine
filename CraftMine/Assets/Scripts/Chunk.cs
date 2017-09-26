@@ -10,27 +10,32 @@ public class Chunk{
     private int chunkWidth;
     private int chunkLength;
     private int chunkDepth;
+    public Vector3 chunkGridPosition;
+    public Vector3 chunkWorldPosition;
 
     public Block[,,] blocks;
     private float[,] noiseMap;
 
     public GameObject chunk;
+    public int chunkID;
     private int blockCount = 0;
 
-    private Dictionary<string, List<Mesh>> meshesPerBlockType = new Dictionary<string, List<Mesh>>();
+    private Dictionary<string, List<MeshData>> meshesPerBlockType = new Dictionary<string, List<MeshData>>();
+    public List<MeshMaterial> finalMeshes = new List<MeshMaterial>();
 
-    public Chunk(int posX, int posZ, int num)
-    {
+    public Chunk(int x, int z, int i) {
         chunkWidth = WG.length;
         chunkLength = WG.length;
         chunkDepth = WG.depth;
         blocks = new Block[chunkWidth, chunkDepth, chunkLength];
-        chunk = new GameObject("Chunk" + num);
-        chunk.tag = "Chunk";
-        chunk.transform.position = new Vector3(posX, 0, posZ);
-        this.noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunk.transform, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
-        chunk.transform.position = new Vector3(posX * chunkLength, 0, posZ * chunkWidth);
+        chunkID = i;
+        chunkGridPosition = new Vector3(x, 0, z);
+        chunkWorldPosition = new Vector3(x * chunkLength, 0, z * chunkWidth);
+        noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunkGridPosition, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
         GenerateChunk();
+        lock (WG.chunksToAddtoGridQueue) { 
+            WG.chunksToAddtoGridQueue.Enqueue(this);
+        }
     }
 
     void GenerateChunk(){
@@ -50,12 +55,12 @@ public class Chunk{
                     if (!blocks[x, y, z].isTransparent()) {
                         int[] faces = CheckNeighbors(x, y, z);
                         if (faces.Length > 0) { 
-                            Mesh block = blocks[x, y, z].Draw(faces);
-                            Vector3[] blockVertices = block.vertices;
+                            MeshData block = blocks[x, y, z].Draw(faces);
+                            Vector3[] blockVertices = block.GetVertices().ToArray();
                             for (int i = 0; i < blockVertices.Length; i++) {
-                                blockVertices[i] += new Vector3(x + (int)chunk.transform.position.x, y, z + (int)chunk.transform.position.z);
+                                blockVertices[i] += new Vector3(x + (int)chunkWorldPosition.x, y, z + (int)chunkWorldPosition.z);
                             }
-                            block.vertices = blockVertices;
+                            block.SetVertices(new List<Vector3>( blockVertices));
                             meshesPerBlockType[blocks[x, y, z].getBlockType()].Add(block);
                         }
                     }
@@ -63,6 +68,9 @@ public class Chunk{
             }
         }
         CombineMeshesByType();
+        lock (WG.chunksToRenderQueue) {
+            WG.chunksToRenderQueue.Enqueue(this);
+        }
     }
 
     private void PlaceBlock(float noiseSample, int x, int y, int z){
@@ -88,7 +96,7 @@ public class Chunk{
             blockCount++;
         }
         if (!meshesPerBlockType.ContainsKey(block.getBlockType())) {
-            meshesPerBlockType.Add(block.getBlockType(), new List<Mesh>());
+            meshesPerBlockType.Add(block.getBlockType(), new List<MeshData>());
         }
     }
 
@@ -148,8 +156,8 @@ public class Chunk{
     }
 
     private Block[,,] getNeighbourChunkBlocks(int x, int z) {
-        int chunkGridCoordX = (int)chunk.transform.position.x / WG.length;
-        int chunkGridCoordZ = (int)chunk.transform.position.z / WG.length;
+        int chunkGridCoordX = (int)chunkGridPosition.x;
+        int chunkGridCoordZ = (int)chunkGridPosition.z;
 
         chunkGridCoordX = chunkGridCoordX + WG.numChunks + x;
         chunkGridCoordZ = chunkGridCoordZ + WG.numChunks + z;
@@ -166,35 +174,38 @@ public class Chunk{
             if (blockType.Equals("Air"))
                 continue;
 
-            List<Mesh> meshes = meshesPerBlockType[blockType];
+            List<MeshData> meshes = meshesPerBlockType[blockType];
             List<Vector3> finalMeshVercies = new List<Vector3>();
             List<int> finalMeshTriangles = new List<int>();
             
             if (meshes.Count == 0)
                 continue;
-            GameObject meshType = new GameObject(blockType + " blocks");
-            finalMeshVercies.AddRange(meshes[0].vertices);
-            finalMeshTriangles.AddRange(meshes[0].triangles);
-            int offset = meshes[0].vertices.Length;
+            finalMeshVercies.AddRange(meshes[0].GetVertices());
+            finalMeshTriangles.AddRange(meshes[0].GetTriangles());
+            int offset = meshes[0].GetVertices().Count;
 
             for (int i = 1; i < meshes.Count; i++) {
-                finalMeshVercies.AddRange(meshes[i].vertices);
-                int[] meshTriangles = meshes[i].triangles;
+                finalMeshVercies.AddRange(meshes[i].GetVertices());
+                int[] meshTriangles = meshes[i].GetTriangles().ToArray();
                 for (int t = 0; t < meshTriangles.Length; t++) {
                     meshTriangles[t] += offset;
                 }
                 finalMeshTriangles.AddRange(meshTriangles);
-                offset += meshes[i].vertices.Length;
+                offset += meshes[i].GetVertices().Count;
             }
 
-            Mesh finalMesh = new Mesh {
-                vertices = finalMeshVercies.ToArray(),
-                triangles = finalMeshTriangles.ToArray()
-            };
-            finalMesh.RecalculateNormals();
-            meshType.AddComponent<MeshFilter>().sharedMesh = finalMesh;
-            meshType.AddComponent<MeshRenderer>().material = WG.materialDictionary[blockType];
-            meshType.transform.parent = chunk.transform;
+            MeshData finalMesh = new MeshData(finalMeshVercies, finalMeshTriangles);
+            finalMeshes.Add(new MeshMaterial(finalMesh, WG.materialDictionary[blockType]));
+        }
+    }
+
+    public struct MeshMaterial {
+        public readonly MeshData mesh;
+        public readonly Material material;
+
+        public MeshMaterial(MeshData mesh, Material material) {
+            this.mesh = mesh;
+            this.material = material;
         }
     }
 }

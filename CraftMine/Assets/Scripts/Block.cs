@@ -22,7 +22,7 @@ public class Block {
         return blockType;
     }
 
-    public Mesh Draw(int[] faces) {
+    public MeshData Draw(int[] faces) {
         List<Vector3> blockVertices = MeshData.faces[faces[0]].GetVertices();
         List<int>  blockTriangles = MeshData.faces[faces[0]].GetTriangles();
 
@@ -35,11 +35,8 @@ public class Block {
             }
             blockTriangles.AddRange(sideTriangles);
         }
-        
-        Mesh mesh = new Mesh {
-            vertices = blockVertices.ToArray(),
-            triangles = blockTriangles.ToArray()
-        };
+
+        MeshData mesh = new MeshData(blockVertices, blockTriangles);
 
         return mesh;
     }

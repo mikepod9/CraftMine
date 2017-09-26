@@ -91,16 +91,16 @@ public static class Noise {
         new Vector3( 0f,-1f,-1f)
     };
 
-    public static float[,] GenerateNoiseMap(int width, int length, int depth, Transform transform, float frequency, int octaves, float lacunarity, float persistence)
+    public static float[,] GenerateNoiseMap(int width, int length, int depth, Vector3 pos, float frequency, int octaves, float lacunarity, float persistence)
     {
         float[,] noiseMap = new float[width, length];
 
         NoiseMethod method = Noise.noiseMethods[1][1];
 
-        Vector3 point00 = transform.TransformPoint(new Vector3(-0.5f, 0, -0.5f));
-        Vector3 point10 = transform.TransformPoint(new Vector3(0.5f, 0, -0.5f));
-        Vector3 point01 = transform.TransformPoint(new Vector3(-0.5f, 0, 0.5f));
-        Vector3 point11 = transform.TransformPoint(new Vector3(0.5f, 0, 0.5f));
+        Vector3 point00 = pos + new Vector3(-0.5f, 0, -0.5f);
+        Vector3 point10 = pos + new Vector3(0.5f, 0, -0.5f);
+        Vector3 point01 = pos + new Vector3(-0.5f, 0, 0.5f);
+        Vector3 point11 = pos + new Vector3(0.5f, 0, 0.5f);
 
         float stepSize = 1f / length;
         for (int x = 0; x < length; x++)

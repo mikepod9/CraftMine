@@ -82,7 +82,7 @@ public class MeshData {
     private List<Vector3> vertices;
     private List<int> triangles;
 
-    private MeshData(List<Vector3> vertices, List<int> triangles) {
+    public MeshData(List<Vector3> vertices, List<int> triangles) {
         this.vertices = new List<Vector3>( vertices);
         this.triangles = new List<int>(triangles);
     }
@@ -91,7 +91,15 @@ public class MeshData {
         return new List<Vector3>(vertices);
     }
 
+    public void SetVertices(List<Vector3> vertices) {
+        this.vertices = vertices;
+    }
+
     public List<int> GetTriangles() {
         return new List<int>(triangles);
+    }
+
+    public void SetTriangles(List<int> triangles) {
+        this.triangles = triangles;
     }
 }

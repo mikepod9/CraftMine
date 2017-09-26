@@ -34,7 +34,11 @@ public class WorldGenerator : MonoBehaviour {
 
     public Chunk[,] chunks;
 
-    private Queue<Chunk> chunksToRenderQueue = new Queue<Chunk>();
+    public Queue<Chunk> chunksToRenderQueue = new Queue<Chunk>();
+    public Queue<Chunk> chunksToAddtoGridQueue = new Queue<Chunk>();
+
+    private int generatedChunks;
+    private int totalNumOfChunks;
 
     [System.Serializable]
     public struct NamedMaterial {
@@ -49,19 +53,43 @@ public class WorldGenerator : MonoBehaviour {
     }
 
     public void Start() {
-        CreateChunks(numChunks);
-        ThreadStart threadStart = delegate {
-            RenderChunks();
-        };
-        new Thread(threadStart).Start();
+        generatedChunks = 0;
+        totalNumOfChunks = (numChunks * 2 + 1) * (numChunks * 2 + 1);
+        new Thread(() => { CreateChunks(numChunks); }).Start();
     }
 
     private void OnEnable() {
     }
 
     private void Update() {
+        if (chunksToAddtoGridQueue.Count > 0) {
+            Chunk chunk = chunksToAddtoGridQueue.Dequeue();
+            chunk.chunk = new GameObject("Chunk" + chunk.chunkID);
+            chunk.chunk.tag = "Chunk";
+            chunk.chunk.transform.position = chunk.chunkWorldPosition;
+            chunks[(int)chunk.chunkGridPosition.x + numChunks, (int)chunk.chunkGridPosition.z + numChunks] = chunk;
+            Debug.Log(chunk.chunk.name + " is done generating data");
+            generatedChunks++;
+        }
+
+        if (generatedChunks == totalNumOfChunks) {
+            generatedChunks = -1;
+            new Thread(() => { RenderChunks(); }).Start();
+        }
+
         if (chunksToRenderQueue.Count > 0) {
-            chunksToRenderQueue.Dequeue().RenderChunk();
+            Chunk chunk = chunksToRenderQueue.Dequeue();
+            foreach(Chunk.MeshMaterial meshmat in chunk.finalMeshes) {
+                GameObject meshType = new GameObject(meshmat.material.name + " blocks");
+                Mesh mesh = new Mesh {
+                    vertices = meshmat.mesh.GetVertices().ToArray(),
+                    triangles = meshmat.mesh.GetTriangles().ToArray()
+                };
+                mesh.RecalculateNormals();
+                meshType.AddComponent<MeshFilter>().sharedMesh = mesh;
+                meshType.AddComponent<MeshRenderer>().material = meshmat.material;
+                meshType.transform.parent = chunk.chunk.transform;
+            }
         }
     }
 
@@ -80,7 +108,7 @@ public class WorldGenerator : MonoBehaviour {
         int i = 0;
         for (int x = -numChunks; x <= numChunks; x++) {
             for (int z = -numChunks; z <= numChunks; z++) {
-                chunks[x + numChunks, z + numChunks] = new Chunk(x, z, i);
+                new Chunk(x, z, i);
                 i++;
             }
         }
@@ -89,9 +117,7 @@ public class WorldGenerator : MonoBehaviour {
     public void RenderChunks() {
         for (int x = 0; x < chunks.GetLength(1); x++) {
             for (int z = 0; z < chunks.GetLength(0); z++) {
-                lock (chunksToRenderQueue){
-                    chunksToRenderQueue.Enqueue(chunks[x, z]);
-                }
+                chunks[x, z].RenderChunk();
             }
         }
     }
