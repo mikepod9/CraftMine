@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,8 +32,9 @@ public class Chunk{
         chunkWorldPosition = new Vector3(x * chunkLength, 0, z * chunkWidth);
         noiseMap = Noise.GenerateNoiseMap(chunkWidth, chunkLength, chunkDepth, chunkGridPosition, WG.frequency, WG.octaves, WG.lacunarity, WG.persistence);
         GenerateChunk();
-        lock (WG.chunksToAddtoGridQueue) { 
-            WG.chunksToAddtoGridQueue.Enqueue(this);
+        lock (WG.chunksToAddToWorldList) {
+            WG.chunksToAddToWorldList.Add(this);
+
         }
     }
 
@@ -68,8 +68,8 @@ public class Chunk{
             }
         }
         CombineMeshesByType();
-        lock (WG.chunksToRenderQueue) {
-            WG.chunksToRenderQueue.Enqueue(this);
+        lock (WG.chunksToRenderList) {
+            WG.chunksToRenderList.Add(this);
         }
     }
 
@@ -164,7 +164,7 @@ public class Chunk{
 
         try {
             return WG.chunks[chunkGridCoordX, chunkGridCoordZ].blocks;
-        }catch(System.Exception e) {
+        }catch(Exception) {
             return null;
         }
     }

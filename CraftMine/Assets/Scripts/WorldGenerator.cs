@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -33,14 +33,15 @@ public class WorldGenerator : MonoBehaviour {
     public Dictionary<string, Material> materialDictionary = new Dictionary<string, Material>();
 
     public Chunk[,] chunks;
-
-    public Queue<Chunk> chunksToRenderQueue = new Queue<Chunk>();
-    public Queue<Chunk> chunksToAddtoGridQueue = new Queue<Chunk>();
+    
+    public List<Chunk> chunksToAddToWorldList;
+    public List<Chunk> chunksToRenderList;
 
     private int generatedChunks;
+    private int renderedChunks;
     private int totalNumOfChunks;
 
-    [System.Serializable]
+    [Serializable]
     public struct NamedMaterial {
         public string name;
         public Material material;
@@ -52,44 +53,60 @@ public class WorldGenerator : MonoBehaviour {
         PopulateDictionary();
     }
 
-    public void Start() {
+    public void Start() {        
         generatedChunks = 0;
+        renderedChunks = 0;
         totalNumOfChunks = (numChunks * 2 + 1) * (numChunks * 2 + 1);
+        chunksToAddToWorldList = new List<Chunk>(totalNumOfChunks);
+        chunksToRenderList = new List<Chunk>(totalNumOfChunks);
         new Thread(() => { CreateChunks(numChunks); }).Start();
+        Debug.Log("Generating...");
     }
 
     private void OnEnable() {
     }
 
-    private void FixedUpdate() {
-        if (chunksToAddtoGridQueue.Count > 0) {
-            Chunk chunk = chunksToAddtoGridQueue.Dequeue();
-            chunk.chunk = new GameObject("Chunk" + chunk.chunkID);
-            chunk.chunk.tag = "Chunk";
-            chunk.chunk.transform.position = chunk.chunkWorldPosition;
-            chunks[(int)chunk.chunkGridPosition.x + numChunks, (int)chunk.chunkGridPosition.z + numChunks] = chunk;
-            Debug.Log(chunk.chunk.name + " is done generating data");
-            generatedChunks++;
+    private void Update() {
+
+        lock (chunksToAddToWorldList) { 
+            if (chunksToAddToWorldList.Count == totalNumOfChunks && generatedChunks < totalNumOfChunks) {
+                Chunk chunk = chunksToAddToWorldList[generatedChunks];
+                chunk.chunk = new GameObject("Chunk" + chunk.chunkID);
+                chunk.chunk.tag = "Chunk";
+                chunk.chunk.transform.position = chunk.chunkWorldPosition;
+                generatedChunks++;
+            }
         }
 
         if (generatedChunks == totalNumOfChunks) {
-            generatedChunks = -1;
+            generatedChunks++;
             new Thread(() => { RenderChunks(); }).Start();
+            Debug.Log("Rendering...");
         }
 
-        if (chunksToRenderQueue.Count > 0) {
-            Chunk chunk = chunksToRenderQueue.Dequeue();
-            foreach(Chunk.MeshMaterial meshmat in chunk.finalMeshes) {
-                GameObject meshType = new GameObject(meshmat.material.name + " blocks");
-                Mesh mesh = new Mesh {
-                    vertices = meshmat.mesh.GetVertices().ToArray(),
-                    triangles = meshmat.mesh.GetTriangles().ToArray()
-                };
-                mesh.RecalculateNormals();
-                meshType.AddComponent<MeshFilter>().sharedMesh = mesh;
-                meshType.AddComponent<MeshRenderer>().material = meshmat.material;
-                meshType.transform.parent = chunk.chunk.transform;
+        lock (chunksToRenderList) {
+            if (chunksToRenderList.Count == totalNumOfChunks && renderedChunks < totalNumOfChunks) {
+                Chunk chunk = chunksToRenderList[renderedChunks];
+                for (int i = 0; i < chunk.finalMeshes.Count; i++) {
+                    Chunk.MeshMaterial meshmat = chunk.finalMeshes[i];
+                    GameObject meshType = new GameObject(meshmat.material.name + " blocks");
+                    Mesh mesh = new Mesh {
+                        vertices = meshmat.mesh.GetVertices().ToArray(),
+                        triangles = meshmat.mesh.GetTriangles().ToArray()
+                    };
+                    mesh.RecalculateNormals();
+                    meshType.AddComponent<MeshFilter>().sharedMesh = mesh;
+                    meshType.AddComponent<MeshRenderer>().material = meshmat.material;
+                    meshType.transform.parent = chunk.chunk.transform;
+                }
+                renderedChunks++;
             }
+        }
+
+        if(renderedChunks == totalNumOfChunks) {
+            renderedChunks++;
+            chunksToRenderList.Clear();
+            chunksToAddToWorldList.Clear();
         }
     }
 
@@ -108,7 +125,7 @@ public class WorldGenerator : MonoBehaviour {
         int i = 0;
         for (int x = -numChunks; x <= numChunks; x++) {
             for (int z = -numChunks; z <= numChunks; z++) {
-                new Chunk(x, z, i);
+                chunks[x + numChunks, z + numChunks] = new Chunk(x, z, i);
                 i++;
             }
         }

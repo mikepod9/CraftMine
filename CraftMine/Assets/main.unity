@@ -151,7 +151,7 @@ MonoBehaviour:
   length: 32
   depth: 128
   waterLevel: 64
-  numChunks: 10
+  numChunks: 2
   frequency: 0.5
   octaves: 8
   lacunarity: 1.43
