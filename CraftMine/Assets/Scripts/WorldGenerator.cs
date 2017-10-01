@@ -28,6 +28,14 @@ public class WorldGenerator : MonoBehaviour {
     [Range(0f, 1f)]
     public float persistence = 0.5f;
 
+
+    public float caveFrequency;
+    public int caveOctaves;
+    public float caveLacunarity;
+    public float cavePersistence;
+    public float landThreshold;
+    public float stoneThreshold;
+
     public NamedMaterial[] materials;
 
     public Dictionary<string, Material> materialDictionary = new Dictionary<string, Material>();
@@ -95,6 +103,7 @@ public class WorldGenerator : MonoBehaviour {
                         triangles = meshmat.mesh.GetTriangles().ToArray()
                     };
                     mesh.RecalculateNormals();
+                    mesh.RecalculateBounds();
                     meshType.AddComponent<MeshFilter>().sharedMesh = mesh;
                     meshType.AddComponent<MeshRenderer>().material = meshmat.material;
                     meshType.transform.parent = chunk.chunk.transform;

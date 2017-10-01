@@ -87,12 +87,22 @@ public class Chunk{
             blocks[x, y, z] = block;
             blockCount++;
         } else if (y <= stoneLayer) {
-            block = new Block("Stone");
-            blocks[x, y, z] = block;
+            if (Noise.Sum(Noise.noiseMethods[1][2], new Vector3(x + chunkWorldPosition.x, y, z + chunkWorldPosition.z), WG.caveFrequency, WG.caveOctaves, WG.caveLacunarity, WG.cavePersistence) < WG.stoneThreshold) {
+                block = new Block("Stone");
+                blocks[x, y, z] = block;
+            } else {
+                block = new Block("Air");
+                blocks[x, y, z] = block;
+            }
             blockCount++;
         } else if (y <= dirtLayer) {
-            block = new Block("Land");
-            blocks[x, y, z] = block;
+            if (Noise.Sum(Noise.noiseMethods[1][2], new Vector3(x, y, z), WG.caveFrequency, WG.caveOctaves, WG.caveLacunarity, WG.cavePersistence) < WG.landThreshold) {
+                block = new Block("Land");
+                blocks[x, y, z] = block;
+            } else {
+                block = new Block("Air");
+                blocks[x, y, z] = block;
+            }
             blockCount++;
         }
         if (!meshesPerBlockType.ContainsKey(block.getBlockType())) {

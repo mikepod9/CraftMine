@@ -93,7 +93,7 @@ public static class Noise {
     {
         float[,] noiseMap = new float[width, length];
 
-        NoiseMethod method = Noise.noiseMethods[1][1];
+        NoiseMethod method = noiseMethods[1][1];
 
         Vector3 point00 = pos + new Vector3(-0.5f, 0, -0.5f);
         Vector3 point10 = pos + new Vector3(0.5f, 0, -0.5f);
@@ -108,7 +108,7 @@ public static class Noise {
             for (int z = 0; z < length; z++)
             {
                 Vector3 point = Vector3.Lerp(point0, point1, (z + 0.5f) * stepSize);
-                float sample = Noise.Sum(method, point, frequency, octaves, lacunarity, persistence);
+                float sample = Sum(method, point, frequency, octaves, lacunarity, persistence);
                 sample = sample * 0.5f + 0.5f;
                 sample *= depth;
                 noiseMap[x, z] = sample;

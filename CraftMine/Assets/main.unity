@@ -151,11 +151,17 @@ MonoBehaviour:
   length: 32
   depth: 128
   waterLevel: 64
-  numChunks: 2
+  numChunks: 3
   frequency: 0.5
   octaves: 8
   lacunarity: 1.43
   persistence: 0.6
+  caveFrequency: 0.04
+  caveOctaves: 3
+  caveLacunarity: 1.4
+  cavePersistence: 0.6
+  landThreshold: 0.5
+  stoneThreshold: 0.2
   materials:
   - name: Air
     material: {fileID: 2100000, guid: f2689030d065b4041ad90519ce7a85e7, type: 2}
@@ -177,6 +183,7 @@ GameObject:
   - component: {fileID: 1227802472}
   - component: {fileID: 1227802471}
   - component: {fileID: 1227802470}
+  - component: {fileID: 1227802475}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -221,9 +228,9 @@ Camera:
     y: 0
     width: 10
     height: 10
-  near clip plane: 30
+  near clip plane: 0.01
   far clip plane: 1000
-  field of view: 62
+  field of view: 90
   orthographic: 0
   orthographic size: 72.43073
   m_Depth: -1
@@ -254,6 +261,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 153.9, y: 39.5, z: 180}
+--- !u!114 &1227802475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1227802469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14a39e0d10561ef4198443295eb8f9b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraSensitivity: 90
+  climbSpeed: 4
+  normalMoveSpeed: 10
+  slowMoveFactor: 0.25
+  fastMoveFactor: 3
 --- !u!1 &2078755465
 GameObject:
   m_ObjectHideFlags: 0
